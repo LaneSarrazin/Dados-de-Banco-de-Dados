@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+ 
+  <title>Recebendo Dados do Servidor</title>
+</head>
+<body>
+  <h1>Dados do Banco de Dados:</h1>
+  <ul id="dados-lista"></ul>
+  <button id="baixarPDF">baixar PDF</button>
+
+  <script>
+    fetch('http://localhost:3000/dados')//Essa linha de código faz uma solicitação (requisição) para o servidor local na porta 3000 e pede os dados do caminho "dados" (provavelmente configurado no servidor).
+      .then(response => response.json()) //Isso encadeia uma promessa (promise) que trata a resposta da solicitação. Quando a resposta chegar, ela será convertida para JSON.
+      .then(data => {//Outra parte da cadeia de promessas. Aqui, estamos recebendo os dados em formato JSON e executando uma função que manipula esses dados.
+        const dadosLista = document.getElementById('dados-lista'); // Obtém a referência à lista não ordenada (ul) com o id "dados-lista" para que possamos adiciona itens a ela mais tarde.
+
+        data.forEach(item => {//: Itera através dos dados recebidos do servidor usando o método forEach, que percorre cada item do array de dados
+          const li = document.createElement('li');
+          li.textContent = JSON.stringify(item);// Define o conteúdo de texto do elemento li como a representação JSON de cada item de dado. Isso garantirá que o conteúdo seja exibido na página, mesmo que os dados sejam complexos.
+          dadosLista.appendChild(li);// Adiciona cada elemento de lista (li) à lista não ordenada (ul) com id "dados-lista".
+        });
+
+        document.getElementById('baixarPDF').addEventListener('click', function(){
+          fetch("http://localhost:3000/dados?download=true")
+          .then(response => response.blob())
+          .then(blob => {
+            const url = window.URL.createObjectURL(new Blob([blob]));
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "meu_bd.pdf";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+          })
+
+          .catch(error => console.error("erro ao baixar o pdf", error));
+        })
+
+
+      })
+      .catch(error => console.error('Erro na requisição:', error));
+  </script>
+  
+  
+</body>
+</html>
